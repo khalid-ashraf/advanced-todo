@@ -1,41 +1,23 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Outlet } from "react-router-dom";
 
 import Header from "../components/Header";
 import Tabs from "../components/Tabs";
 import TodoInput from "../components/TodoInput";
-import TodoList from "../components/TodoList";
-import { Outlet } from "react-router-dom";
 
 const Root = () => {
   const [todos, setTodos] = useState([
     {
       input: "Hello! Add your first todo!",
-      complete: true,
-    },
-    {
-      input: "Get groceries",
-      complete: false,
-    },
-    {
-      input: "Learn React",
-      complete: true,
-    },
-    {
-      input: "Learn web design",
-      complete: false,
-    },
-    {
-      input: "Call home",
       complete: false,
     },
   ]);
   const [selectedTab, setSelectedTab] = useState("Open");
 
   const handleAddTodo = (newTodo) => {
-    setTodos((prevTodos) => [
-      ...prevTodos,
-      { input: newTodo, complete: false },
-    ]);
+    const newTodoList = [...todos, { input: newTodo, complete: false }];
+    setTodos(newTodoList);
+    handleSaveData(newTodoList);
   };
 
   const handleCompletedTodo = (index) => {
@@ -45,11 +27,28 @@ const Root = () => {
     newTodoList[index] = completedTodo;
 
     setTodos(newTodoList);
+    handleSaveData(newTodoList);
   };
 
   const handleDeleteTodo = (index) => {
-    setTodos((prevTodos) => prevTodos.filter((todo, i) => index !== i));
+    const newTodoList = todos.filter((todo, i) => index !== i);
+    setTodos(newTodoList);
+    handleSaveData(newTodoList);
   };
+
+  const handleSaveData = (currentTodos) => {
+    localStorage.setItem("todo-app", JSON.stringify({ currentTodos }));
+  };
+
+  useEffect(() => {
+    if (!localStorage || !localStorage.getItem("todo-app")) return;
+
+    let db = [];
+    db = JSON.parse(localStorage.getItem("todo-app"));
+    console.log(db);
+
+    setTodos(db.currentTodos);
+  }, []);
 
   return (
     <>
